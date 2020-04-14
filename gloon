@@ -79,7 +79,7 @@ if __name__ == "__main__":
                             with open(os.path.join(tempfile.gettempdir(),name),'wb+') as  file:
                                 file.write(remotefile.body.readResponse.record.content)
                             file.close()
-                            subprocess.call(['code','--diff', localfile , os.path.join(tempfile.gettempdir(),name)] ,shell=True)
+                            subprocess.call(['code','--diff', localfile , os.path.join(tempfile.gettempdir(),name)] ,shell=False)
                         else:
                             spinner.warn('No se encontraron coincidencias :/')
                 else:
