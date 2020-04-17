@@ -35,8 +35,8 @@ if __name__ == "__main__":
         sdf = open(os.path.join(cwd,'.sdf'), 'r+' ) if os.path.isfile(os.path.join(cwd,'.sdf')) == True else None
         #local file name passed from argument
         localfile = sys.argv[1] if len(sys.argv) > 1 else None
-        name = localfile.split('\\')[-1]
         if localfile is not None and sdf is not None:
+            name = localfile.split('\\')[-1]
             #start spinner animation
             spinner.start()
             
@@ -45,7 +45,8 @@ if __name__ == "__main__":
             sdf.close()
             passport = dict([(item.split('=')[0], item.split('=')[1].replace('\n','')) for item in lines])
             
-            client = zeep.Client('https://tstdrv1989308.suitetalk.api.netsuite.com/wsdl/v2014_2_0/netsuite.wsdl')
+            # client = zeep.Client('https://tstdrv1989308.suitetalk.api.netsuite.com/wsdl/v2014_2_0/netsuite.wsdl')
+            client = zeep.Client('https://webservices.netsuite.com/wsdl/v2014_2_0/netsuite.wsdl')
             Passport = client.get_type('ns0:Passport')
             credentials = Passport(email=passport['email'],password=passport['pass'],account=passport['account'], role=passport['role'])
             
@@ -60,7 +61,7 @@ if __name__ == "__main__":
 
                     filesearch = FileSearch(basic=FileSearchBasic(name=SearchStringField(searchValue=name, operator='is')))
 
-                    search = client.service.search(searchRecord=filesearch)
+                    search = client.service.search(searchRecord=filesearch, _soapheaders={'passport': credentials})
                     if search.body.searchResult.status.isSuccess:
                         record = search.body.searchResult.recordList
                         if record is not None:
@@ -77,11 +78,11 @@ if __name__ == "__main__":
                             answers = prompt(questions)
                             internalid = re.findall(r'\-?\d{1,}',answers['file'])
 
-                            remotefile = client.service.get(baseRef=Record(name=name, internalId=internalid[0], type='file'))
-                            with open(os.path.join(tempfile.gettempdir(),name),'wb+') as  file:
+                            remotefile = client.service.get(baseRef=Record(name=name, internalId=internalid[0], type='file'), _soapheaders={'passport': credentials})
+                            with open(os.path.join(tempfile.gettempdir(),name),'wb+') as file:
                                 file.write(remotefile.body.readResponse.record.content)
                             file.close()
-                            subprocess.call(['code','--diff', localfile , os.path.join(tempfile.gettempdir(),name)], shell=False)
+                            subprocess.call(['code','--diff', localfile , os.path.join(tempfile.gettempdir(),name)], shell=True)
                         else:
                             spinner.warn('No se encontraron coincidencias :/')
                 else:
