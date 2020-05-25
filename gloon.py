@@ -66,18 +66,23 @@ if __name__ == "__main__":
                         record = search.body.searchResult.recordList
                         if record is not None:
                             spinner.succeed()
-                            questions = [
-                                {
-                                    'type': 'list',
-                                    'name': 'file',
-                                    'qmark': '!',
-                                    'message': 'He econtrado estos archivos que coinciden con tu búsqueda:',
-                                    'choices': ["[{internalid}] {parent}/{file}".format(internalid= file.internalId, parent= file.folder.name.replace(' : ','/'), file=file.name) for file in record.record]
-                                }
-                            ]
-                            answers = prompt(questions)
-                            internalid = re.findall(r'\-?\d{1,}',answers['file'])
-
+                            coiches = ["[{internalid}] {parent}/{file}".format(internalid= file.internalId, parent= file.folder.name.replace(' : ','/'), file=file.name) for file in record.record]
+                            # si hay más de una opción, entonces se lista una selección
+                            # de opciones para seleccionar a coincidencia correcta
+                            if len(coiches) > 1:
+                                questions = [
+                                    {
+                                        'type': 'list',
+                                        'name': 'file',
+                                        'qmark': '!',
+                                        'message': 'He econtrado estos archivos que coinciden con tu búsqueda:',
+                                        'choices': choices
+                                    }
+                                ]
+                                answers = prompt(questions)
+                                internalid = re.findall(r'\-?\d{1,}',answers['file'])
+                            else:
+                                internalid = re.findall(r'\-?\d{1,}',coiches[0])
                             remotefile = client.service.get(baseRef=Record(name=name, internalId=internalid[0], type='file'), _soapheaders={'passport': credentials})
                             with open(os.path.join(tempfile.gettempdir(),name),'wb+') as file:
                                 file.write(remotefile.body.readResponse.record.content)

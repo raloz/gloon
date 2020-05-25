@@ -5,7 +5,7 @@ with open('README.md') as readme_file:
 
 setup_args = dict(
     name='gloon',
-    version='0.1.9',
+    version='0.2.0',
     scripts=['gloon.py'],
     description='Download file from your file cabinet and open Visual Code diff tool',
     long_description_content_type="text/markdown",
