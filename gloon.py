@@ -45,8 +45,8 @@ if __name__ == "__main__":
             sdf.close()
             passport = dict([(item.split('=')[0], item.split('=')[1].replace('\n','')) for item in lines])
             
-            # client = zeep.Client('https://tstdrv1989308.suitetalk.api.netsuite.com/wsdl/v2014_2_0/netsuite.wsdl')
-            client = zeep.Client('https://webservices.netsuite.com/wsdl/v2014_2_0/netsuite.wsdl')
+            client = zeep.Client('{}/wsdl/v2014_2_0/netsuite.wsdl'.format(passport['suitetalk']))
+            #client = zeep.Client('https://webservices.netsuite.com/wsdl/v2014_2_0/netsuite.wsdl')
             Passport = client.get_type('ns0:Passport')
             credentials = Passport(email=passport['email'],password=passport['pass'],account=passport['account'], role=passport['role'])
             
